@@ -139,3 +139,80 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
         def get_is_in_shopping_cart(self, obj):
             """Функция проверки нахождения рецепта в списке покупок."""
             return self.get_user_recipe_model(obj, RecipesInShoppingList)
+
+
+class MiniRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор получения краткой информации о рецепте."""
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+        )
+        read_only_fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+        )
+
+
+class RecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания и редактирования рецепта."""
+    ingredients = IngredientRecipeSerializer(many=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(),
+        many=True
+    )
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'ingredients',
+            'tags',
+            'image',
+            'name',
+            'text',
+            'cooking_time',
+        )
+
+    def validate_ingredients(self, values):
+        pass
+
+
+    def validate_tags(self, values):
+        if not values:
+            raise serializers.ValidationError(
+                'Необходимо указать хотя бы 1 тег'
+            )
+        if len(values) != len(set(values.id for values in values)):
+            raise serializers.ValidationError(
+                'Теги должны быть уникальны!'
+            )
+        return values
+
+    def validate_image(self, values):
+        if not values:
+            raise serializers.ValidationError(
+                'Необходимо добавить изображение блюда!'
+            )
+        return values
+
+    def validate_cooking_time(self, values):
+        pass
+
+    def validate_name(self, values):
+        pass
+
+    def validate_text(self, values):
+        pass
+
+    def create(self, validated_data):
+        pass
+
+    def update(self, instance, validated_data):
+        pass
