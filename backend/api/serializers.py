@@ -2,7 +2,8 @@ from django.core.files.base import ContentFile
 from rest_framework import serializers
 import base64
 
-from backend.recipes.models import Tag, Ingredient, IngredientInRecipe
+from backend.recipes.models import Tag, Ingredient, IngredientInRecipe, Recipe, \
+    Favorite, RecipesInShoppingList
 from backend.users.models import User, Subscription
 
 
@@ -71,14 +72,70 @@ class IngredientSerializer(serializers.ModelSerializer):
         read_only_fields = ('id','name','measurement_unit')
 
 
-class IngredientAmountSerializer(serializers.ModelSerializer):
-    """Сериализатор для указания количества ингредиента в рецепте."""
+class IngredientRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для указания ингредиента в рецепте."""
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all(),
-        source='name',
+        source='ingredient.id',
     )
-    amount = serializers.IntegerField()
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
 
     class Meta:
         model = IngredientInRecipe
-        fields = ('id', 'amount')
+        fields = ('id', 'name', 'amount', 'measurement_unit')
+
+
+class ReadRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для получения рецепта (только чтение)."""
+    tags = TagSerializer(many=True, read_only=True)
+    author = UserSerializer(read_only=True)
+    ingredients = IngredientRecipeSerializer(
+        many=True,
+        read_only=True,
+        source='ingredientinrecipe',
+    )
+    is_favorited = serializers.SerializerMethodField(read_only=True)
+    is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
+    image = Base64ImageField(read_only=True)
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'tags',
+            'author',
+            'ingredients',
+            'is_favorited',
+            'is_in_shopping_cart',
+            'name',
+            'image',
+            'text',
+            'cooking_time',
+        )
+        read_only_fields = (
+            'id',
+            'name',
+            'text',
+            'cooking_time'
+        )
+
+        def get_user_recipe_model(self, obj, model):
+            """Функция проверки рецепта у пользователя в модели."""
+            request = obj.context.get('request')
+            if not request.user.is_authenticated:
+                return False
+            return model.objects.filter(
+                user=request.user,
+                recipe=obj,
+            ).exists()
+
+        def get_is_favorited(self, obj):
+            """Функция проверки нахождения рецепта в избранном."""
+            return self.get_user_recipe_model(obj, Favorite)
+
+        def get_is_in_shopping_cart(self, obj):
+            """Функция проверки нахождения рецепта в списке покупок."""
+            return self.get_user_recipe_model(obj, RecipesInShoppingList)
