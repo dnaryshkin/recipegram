@@ -2,6 +2,7 @@ from django.core.files.base import ContentFile
 from rest_framework import serializers
 import base64
 
+from backend.recipes.models import Tag, Ingredient
 from backend.users.models import User, Subscription
 
 
@@ -42,4 +43,24 @@ class UserSerializer(serializers.ModelSerializer):
                 following=obj
             ).exists()
         return False
+
+
+class TagSerializer(serializers.ModelSerializer):
+    """Сериадизатор для модели Тега (только чтение)."""
+
+    class Meta:
+        model = Tag
+        fields = ('id','name', 'slug')
+        read_only_fields = ('id','name', 'slug')
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Ингредиент (только чтение)."""
+
+    class Meta:
+        model = Ingredient
+        fields = ('id','name','measurement_unit')
+        read_only_fields = ('id','name','measurement_unit')
+
+
 
