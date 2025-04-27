@@ -3,6 +3,7 @@ from django.contrib import admin
 from .models import Subscription, User
 
 
+@admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     """Админка для модели Пользователь."""
     list_display = (
@@ -23,6 +24,7 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ('email', 'username',)
 
 
+@admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
     """Админка для модели Подписки."""
     list_display = (
@@ -34,7 +36,3 @@ class SubscriptionAdmin(admin.ModelAdmin):
         'user',
         'following',
     )
-
-
-admin.site.register(User, UserAdmin)
-admin.site.register(Subscription, SubscriptionAdmin)
