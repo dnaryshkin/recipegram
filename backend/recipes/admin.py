@@ -15,33 +15,45 @@ class TagAdmin(admin.ModelAdmin):
     """Админка для тегов."""
     list_display = ('id', 'name', 'slug')
     list_editable = ('name', 'slug')
+    search_fields = ('name',)
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     """Админка для ингредиентов."""
-    pass
+    list_display = ('id', 'name', 'measurement_unit')
+    list_editable = ('name', 'measurement_unit')
+    search_fields = ('name',)
+    list_filter = ('measurement_unit',)
 
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     """Админка для рецептов."""
-    pass
+    list_display = ('id', 'name', 'author', 'cooking_time')
+    filter_horizontal = ('tags', 'ingredients')
 
 
 @admin.register(IngredientInRecipe)
 class IngredientInRecipeAdmin(admin.ModelAdmin):
     """Админка для ингредиентов в рецепте."""
-    pass
+    list_display = ('id', 'recipe', 'ingredient', 'amount')
+    list_select_related = ('recipe', 'ingredient')
+    search_fields = ('recipe__name', 'ingredient__name')
+    list_filter = ('recipe', 'ingredient')
 
 
 @admin.register(RecipesInShoppingList)
 class RecipesInShoppingListAdmin(admin.ModelAdmin):
      """Админка для рецептов в списке покупок."""
-     pass
+     list_display = ('id', 'user', 'recipe')
+     search_fields = ('user__username', 'recipe__name')
+     list_filter = ('user',)
 
 
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
-    """Админка для подписок."""
-    pass
+    """Админка для избранного."""
+    list_display = ('id', 'user', 'recipe')
+    search_fields = ('user__username', 'recipe__name')
+    list_filter = ('user',)
