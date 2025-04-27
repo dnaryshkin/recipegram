@@ -1,13 +1,13 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
-from django.utils.translation import gettext_lazy as _
-from backend.foodgram_backend.constants import (MAX_EMAIL_LENGTH,
-                                                MAX_USERNAME_LENGTH,
-                                                MAX_FIRSNAME_LENGTH,
-                                                MAX_LASTNAME_LENGTH,
-                                                )
-from django.db import models
+
+from backend.foodgram_backend.constants import (
+    MAX_EMAIL_LENGTH,
+    MAX_USERNAME_LENGTH,
+    MAX_FIRSNAME_LENGTH,
+    MAX_LASTNAME_LENGTH,
+)
 
 
 class User(AbstractUser):
@@ -49,8 +49,38 @@ class User(AbstractUser):
 
     class Meta:
         ordering = ('username',)
-        verbose_name='пользователь'
-        verbose_name_plural='Пользователи'
+        verbose_name = 'пользователь'
+        verbose_name_plural = 'Пользователи'
 
     def __str__(self):
         return f'Пользователь: {self.username}'
+
+
+class Subscription(models.Model):
+    """Модель подписок."""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='subscriptions',
+    )
+    following = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='followings',
+    )
+
+    class Meta:
+        ordering = ('user',)
+        verbose_name = 'подписка пользователя'
+        verbose_name_plural = 'Подписки пользователя'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'following'],
+                name='unique_user_following'
+            )
+        ]
+
+    def __str__(self):
+        return (f'Пользователь: {self.user.username}'
+                f'подписан на "{self.following.username}')
