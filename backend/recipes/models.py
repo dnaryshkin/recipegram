@@ -8,9 +8,10 @@ from backend.foodgram_backend.constants import (
     MAX_UNIT_LENGTH,
     MAX_NAME_RECIPE_LENGTH,
     MIN_TIME_COOKING,
+    MIX_AMOUNT_INGREDIENTS,
 )
 
-from users.models import User
+from backend.users.models import User
 
 
 class Tag(models.Model):
@@ -95,10 +96,13 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления',
-        validators=(
-            MinValueValidator(MIN_TIME_COOKING),
-            f'Время готовки не может быть меньше {MIN_TIME_COOKING}',
-        ),
+        validators=[
+            MinValueValidator(
+                MIN_TIME_COOKING,
+                message='Время готовки не может быть меньше '
+                        f'{MIN_TIME_COOKING}'
+            ),
+        ],
     )
 
     class Meta:
@@ -108,6 +112,40 @@ class Recipe(models.Model):
 
     def __str__(self):
         return f'Рецепт: {self.name}'
+
+
+class IngredientInRecipe(Recipe):
+    """Модель ингредиентов в рецепте."""
+    name = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        verbose_name='Ингредиент',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name=''
+    )
+    amount = models.PositiveIntegerField(
+        verbose_name='Количество ингредиентов',
+        validators=[
+            MinValueValidator(
+                MIX_AMOUNT_INGREDIENTS,
+                message='Количество ингредиентов не может быть '
+                        f'меньше {MIX_AMOUNT_INGREDIENTS}',
+            ),
+        ],
+    )
+
+    class Meta:
+        ordering = ('name', 'recipe',)
+        verbose_name = 'ингедицент в рецепте'
+        verbose_name_plural = 'Ингредиенты в рецепте'
+
+    def __str__(self):
+        return (f'Ингредиент {self.name} в количестве {self.amount} '
+                f'{self.name.measurement_unit}')
+
 
 
 
