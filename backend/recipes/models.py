@@ -147,5 +147,42 @@ class IngredientInRecipe(Recipe):
                 f'{self.name.measurement_unit}')
 
 
+class RecipesInShoppingList(models.Model):
+    """Модель списка покупок."""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        ordering = ('recipe',)
+        verbose_name = 'рецепты в списке покупок'
+        verbose_name_plural = 'Рецепты в списке покупок'
+
+    def __str__(self):
+        return (f'Рецепт: {self.recipe.name} в списке покупок у '
+                f'{self.user.username}')
+
+
+class Favorite(models.Model):
+    """Модель избранного."""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        ordering = ('recipe',)
+        verbose_name = 'рецепт в избранном'
+        verbose_name_plural= 'Рецепты в избранном'
+
 
 
