@@ -12,7 +12,6 @@ from backend.foodgram_backend.constants import (
 
 class User(AbstractUser):
     """Модель пользователя наследуемая от AbstractUser."""
-
     email = models.EmailField(
         max_length=MAX_EMAIL_LENGTH,
         unique=True,
@@ -58,7 +57,6 @@ class User(AbstractUser):
 
 class Subscription(models.Model):
     """Модель подписок."""
-
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

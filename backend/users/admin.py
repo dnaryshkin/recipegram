@@ -4,6 +4,7 @@ from .models import Subscription, User
 
 
 class UserAdmin(admin.ModelAdmin):
+    """Админка для модели Пользователь."""
     list_display = (
         'id',
         'email',
@@ -23,6 +24,7 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class SubscriptionAdmin(admin.ModelAdmin):
+    """Админка для модели Подписки."""
     list_display = (
         'id',
         'user',
