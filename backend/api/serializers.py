@@ -2,6 +2,7 @@ from django.core.files.base import ContentFile
 from rest_framework import serializers
 import base64
 
+from backend.foodgram_backend.constants import MIN_TIME_COOKING
 from backend.recipes.models import Tag, Ingredient, IngredientInRecipe, Recipe, \
     Favorite, RecipesInShoppingList
 from backend.users.models import User, Subscription
@@ -203,16 +204,45 @@ class RecipeSerializer(serializers.ModelSerializer):
         return values
 
     def validate_cooking_time(self, values):
-        pass
+        if values < MIN_TIME_COOKING:
+            raise serializers.ValidationError(
+                'Время приготовление должно быть больше '
+                f'{MIN_TIME_COOKING} минут!'
+            )
+        return values
 
     def validate_name(self, values):
-        pass
+        if not values:
+            raise serializers.ValidationError(
+                'Необходимо указать название рецепта!'
+            )
 
     def validate_text(self, values):
-        pass
+        if not values:
+            raise serializers.ValidationError(
+                'Необходимо указать описание рецепта!'
+            )
 
     def create(self, validated_data):
         pass
 
     def update(self, instance, validated_data):
         pass
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Subscription."""
+
+    class Meta:
+        model = Subscription
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count',
+            'avatar',
+        )
