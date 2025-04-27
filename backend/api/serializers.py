@@ -2,7 +2,7 @@ from django.core.files.base import ContentFile
 from rest_framework import serializers
 import base64
 
-from backend.recipes.models import Tag, Ingredient
+from backend.recipes.models import Tag, Ingredient, IngredientInRecipe
 from backend.users.models import User, Subscription
 
 
@@ -20,7 +20,6 @@ class Base64ImageField(serializers.ImageField):
 class UserSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Пользователя."""
     is_subscribed = serializers.SerializerMethodField()
-    avatar = Base64ImageField()
 
     class Meta:
         model = User
@@ -45,6 +44,15 @@ class UserSerializer(serializers.ModelSerializer):
         return False
 
 
+class AvatarSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с аватаром пользователей."""
+    avatar = Base64ImageField()
+
+    class Meta:
+        model = User
+        fields = ('avatar',)
+
+
 class TagSerializer(serializers.ModelSerializer):
     """Сериадизатор для модели Тега (только чтение)."""
 
@@ -63,4 +71,14 @@ class IngredientSerializer(serializers.ModelSerializer):
         read_only_fields = ('id','name','measurement_unit')
 
 
+class IngredientAmountSerializer(serializers.ModelSerializer):
+    """Сериализатор для указания количества ингредиента в рецепте."""
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all(),
+        source='name',
+    )
+    amount = serializers.IntegerField()
 
+    class Meta:
+        model = IngredientInRecipe
+        fields = ('id', 'amount')
