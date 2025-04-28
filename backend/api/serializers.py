@@ -123,23 +123,25 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
             'cooking_time'
         )
 
-        def get_user_recipe_model(self, obj, model):
-            """Функция проверки рецепта у пользователя в модели."""
-            request = obj.context.get('request')
-            if not request.user.is_authenticated:
-                return False
-            return model.objects.filter(
-                user=request.user,
-                recipe=obj,
-            ).exists()
-
         def get_is_favorited(self, obj):
             """Функция проверки нахождения рецепта в избранном."""
-            return self.get_user_recipe_model(obj, Favorite)
+            user = self.context.get('request').user
+            if not user.is_authenticated:
+                return False
+            return Favorite.objects.filter(
+                user=user,
+                recipe=obj
+            ).exists()
 
         def get_is_in_shopping_cart(self, obj):
             """Функция проверки нахождения рецепта в списке покупок."""
-            return self.get_user_recipe_model(obj, RecipesInShoppingList)
+            user = self.context.get('request').user
+            if not user.is_authenticated:
+                return False
+            return RecipesInShoppingList.objects.filter(
+                user=user,
+                recipe=obj
+            ).exists()
 
 
 class MiniRecipeSerializer(serializers.ModelSerializer):
@@ -184,44 +186,20 @@ class RecipeSerializer(serializers.ModelSerializer):
     def validate_ingredients(self, values):
         pass
 
-
     def validate_tags(self, values):
-        if not values:
-            raise serializers.ValidationError(
-                'Необходимо указать хотя бы 1 тег'
-            )
-        if len(values) != len(set(values.id for values in values)):
-            raise serializers.ValidationError(
-                'Теги должны быть уникальны!'
-            )
-        return values
+        pass
 
     def validate_image(self, values):
-        if not values:
-            raise serializers.ValidationError(
-                'Необходимо добавить изображение блюда!'
-            )
-        return values
+        pass
 
     def validate_cooking_time(self, values):
-        if values < MIN_TIME_COOKING:
-            raise serializers.ValidationError(
-                'Время приготовление должно быть больше '
-                f'{MIN_TIME_COOKING} минут!'
-            )
-        return values
+        pass
 
     def validate_name(self, values):
-        if not values:
-            raise serializers.ValidationError(
-                'Необходимо указать название рецепта!'
-            )
+        pass
 
     def validate_text(self, values):
-        if not values:
-            raise serializers.ValidationError(
-                'Необходимо указать описание рецепта!'
-            )
+        pass
 
     def create(self, validated_data):
         pass
