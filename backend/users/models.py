@@ -27,7 +27,7 @@ class User(AbstractUser):
                 message='Имя пользователя может содержать только буквы, '
                         'цифры и "@.+-_"'
             )
-        ]
+        ],
     )
     first_name = models.CharField(
         max_length=MAX_FIRSNAME_LENGTH,
