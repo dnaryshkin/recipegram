@@ -173,7 +173,7 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
 class ReadRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для получения рецепта (только чтение)."""
     tags = TagSerializer(many=True, read_only=True)
-    author = UserSerializer(read_only=True)
+    author = ReadUserSerializer(read_only=True)
     ingredients = IngredientRecipeSerializer(
         many=True,
         read_only=True,
@@ -246,7 +246,9 @@ class MiniRecipeSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для создания и редактирования рецепта."""
-    ingredients = IngredientRecipeSerializer(many=True)
+    ingredients = IngredientRecipeSerializer(
+        many=True,
+    )
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True
@@ -270,7 +272,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Необходимо указать ингредиенты!'
             )
-        ingredients = [item('ingredient') for item in values]
+        ingredients = [item['ingredient'] for item in values]
         if len(ingredients) != len(set(ingredients)):
             raise serializers.ValidationError(
                 'Ингредиенты не должны повторяться!'
@@ -287,14 +289,9 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Необходимо указать тег!'
             )
-        tags = [item('tag') for item in values]
-        if len(tags) != len(set(tags)):
+        if len(values) != len(set(values)):
             raise serializers.ValidationError(
                 'Теги не должны повторяться'
-            )
-        if len(tags) < 1:
-            raise serializers.ValidationError(
-                'Должн'
             )
         return values
 
@@ -304,6 +301,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Необходимо добавить изображение рецепта!'
             )
+        return values
 
     def validate_cooking_time(self, values):
         """Функция проверки поля времени приготовления."""
@@ -331,13 +329,44 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Функция создания рецепта."""
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        author = self.context.get('request').user
+        recipe = Recipe.objects.create(author=author, **validated_data)
+        recipe.tags.set(tags)
+        for ingredient in ingredients:
+            IngredientInRecipe.objects.create(
+                recipe=recipe,
+                ingredient=ingredient.get('ingredient'),
+                amount=ingredient.get('amount'),
+                measurement_unit=ingredient.get('measurement_unit'),
+            )
+        return recipe
 
     def update(self, instance, validated_data):
         """Функция обновления рецепта."""
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        instance = super().update(instance, validated_data)
+        instance.tags.clear()
+        instance.tags.set(tags)
+        instance.ingredientinrecipe.all().delete()
+        for ingredient_data in ingredients:
+            IngredientInRecipe.objects.create(
+                recipe=instance,
+                ingredient=ingredient_data.get('ingredient'),
+                amount=ingredient_data.get('amount'),
+                measurement_unit=ingredient_data.get('measurement_unit'),
+            )
+        return instance
 
+    def to_representation(self, instance):
+        return ReadRecipeSerializer(instance, context=self.context).data
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Subscription."""
+
+
 
     class Meta:
         model = Subscription
