@@ -8,7 +8,7 @@ from backend.foodgram_backend.constants import (
     MAX_UNIT_LENGTH,
     MAX_NAME_RECIPE_LENGTH,
     MIN_TIME_COOKING,
-    MIX_AMOUNT_INGREDIENTS,
+    MIN_AMOUNT_INGREDIENTS,
 )
 
 from backend.users.models import User
@@ -91,9 +91,11 @@ class Recipe(models.Model):
     image = models.ImageField(
         upload_to='recipes/images/',
         verbose_name='Изображение рецепта',
+        help_text='Загрузите изображение блюда.',
     )
     text = models.TextField(
         verbose_name='Описание рецепта',
+        help_text="Опишите рецепт."
     )
     cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления',
@@ -104,6 +106,7 @@ class Recipe(models.Model):
                         f'{MIN_TIME_COOKING}'
             ),
         ],
+        help_text='Время приготовления указывается в минутах',
     )
 
     class Meta:
@@ -131,9 +134,9 @@ class IngredientInRecipe(Recipe):
         verbose_name='Количество ингредиентов',
         validators=[
             MinValueValidator(
-                MIX_AMOUNT_INGREDIENTS,
+                MIN_AMOUNT_INGREDIENTS,
                 message='Количество ингредиентов не может быть '
-                        f'меньше {MIX_AMOUNT_INGREDIENTS}',
+                        f'меньше {MIN_AMOUNT_INGREDIENTS}',
             ),
         ],
     )

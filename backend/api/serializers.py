@@ -7,7 +7,7 @@ import base64
 from rest_framework.validators import UniqueValidator
 
 from backend.foodgram_backend.constants import MIN_TIME_COOKING, \
-    MAX_EMAIL_LENGTH, MAX_USERNAME_LENGTH, MAX_LASTNAME_LENGTH
+    MAX_EMAIL_LENGTH, MAX_USERNAME_LENGTH, MAX_LASTNAME_LENGTH, MIN_AMOUNT_INGREDIENTS
 from backend.recipes.models import Tag, Ingredient, IngredientInRecipe, Recipe, \
     Favorite, RecipesInShoppingList
 from backend.users.models import User, Subscription
@@ -25,7 +25,7 @@ class Base64ImageField(serializers.ImageField):
 
 
 class ReadUserSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Пользователя (получение профиля)."""
+    """Сериализатор для получения профиля Пользователя (только чтение)."""
     is_subscribed = serializers.SerializerMethodField()
     avatar = Base64ImageField()
 
@@ -63,7 +63,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
                 queryset=User.objects.all(),
                 message='Пользователь с таким email уже зарегистрирован!'
             )
-        ]
+        ],
     )
     username = serializers.CharField(
         max_length=MAX_USERNAME_LENGTH,
@@ -114,8 +114,6 @@ class CreateUserSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
         )
         return user
-
-
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -267,32 +265,75 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
     def validate_ingredients(self, values):
-        pass
+        """Функция проверки поля ингредиентов."""
+        if not values:
+            raise serializers.ValidationError(
+                'Необходимо указать ингредиенты!'
+            )
+        ingredients = [item('ingredient') for item in values]
+        if len(ingredients) != len(set(ingredients)):
+            raise serializers.ValidationError(
+                'Ингредиенты не должны повторяться!'
+            )
+        if len(ingredients) < MIN_AMOUNT_INGREDIENTS:
+            raise serializers.ValidationError(
+                f'Ингредиентов должно быть не меньше {MIN_AMOUNT_INGREDIENTS}'
+            )
+        return values
 
     def validate_tags(self, values):
-        pass
+        """Функция проверки поля тегов."""
+        if not values:
+            raise serializers.ValidationError(
+                'Необходимо указать тег!'
+            )
+        tags = [item('tag') for item in values]
+        if len(tags) != len(set(tags)):
+            raise serializers.ValidationError(
+                'Теги не должны повторяться'
+            )
+        if len(tags) < 1:
+            raise serializers.ValidationError(
+                'Должн'
+            )
+        return values
 
-    def validate_image(self, image):
-        pass
+    def validate_image(self, values):
+        """Функция проверки изображений рецепта."""
+        if not values:
+            raise serializers.ValidationError(
+                'Необходимо добавить изображение рецепта!'
+            )
 
-    def validate_cooking_time(self, cooking_time):
-        if cooking_time < MIN_TIME_COOKING:
+    def validate_cooking_time(self, values):
+        """Функция проверки поля времени приготовления."""
+        if values < MIN_TIME_COOKING:
             raise serializers.ValidationError(
                 f'Время приготовление не может быть меньше {MIN_TIME_COOKING}'
             )
-        return cooking_time
+        return values
 
-    def validate_name(self, name):
-        pass
+    def validate_name(self, values):
+        """Функция провеки поля названия рецепта."""
+        if not values:
+            raise serializers.ValidationError(
+                'Необходимо указать название рецепта!'
+            )
+        return values
 
     def validate_text(self, values):
-        pass
+        """Функция проверки описания рецепта."""
+        if not values:
+            raise serializers.ValidationError(
+                'Необходимо написать описание рецепта!'
+            )
+        return values
 
     def create(self, validated_data):
-        pass
+        """Функция создания рецепта."""
 
     def update(self, instance, validated_data):
-        pass
+        """Функция обновления рецепта."""
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
