@@ -7,7 +7,7 @@ class Base64ImageField(serializers.ImageField):
     """Сериализатор для изображений в формате base64."""
 
     def to_internal_value(self, data):
-        """Функция декодирования данных base64."""
+        """Функция декодирования изображений base64."""
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
             ext = format.split('/')[-1]

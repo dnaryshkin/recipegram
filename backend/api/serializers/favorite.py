@@ -5,14 +5,14 @@ from backend.recipes.models import Favorite
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Избранного."""
+    """Сериализатор для модели добавления рецепта в избранное."""
 
     class Meta:
         model = Favorite
         fields = ('user', 'recipe')
 
     def validate(self, data):
-        """Функция проверки добавления в избранное."""
+        """Функция проверки добавления рецепта в избранное."""
         user = self.context['request'].user
         recipe = data['recipe']
         if Favorite.objects.filter(user=user, recipe=recipe).exists():

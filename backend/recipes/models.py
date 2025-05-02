@@ -119,7 +119,7 @@ class Recipe(models.Model):
 
 
 class IngredientInRecipe(Recipe):
-    """Модель ингредиентов в рецепте."""
+    """Модель связи ингредиентов в рецепте."""
     name = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
@@ -152,7 +152,7 @@ class IngredientInRecipe(Recipe):
 
 
 class RecipesInShoppingList(models.Model):
-    """Модель списка покупок."""
+    """Модель списка покупок рецептов."""
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -173,7 +173,7 @@ class RecipesInShoppingList(models.Model):
 
 
 class Favorite(models.Model):
-    """Модель избранного."""
+    """Модель добавления рецепта в избранное."""
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

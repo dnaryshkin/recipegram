@@ -5,7 +5,7 @@ from backend.recipes.models import RecipesInShoppingList
 
 
 class ShoppingListSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели добавления в список покупок."""
+    """Сериализатор для модели добавления рецепта в список покупок."""
 
     class Meta:
         model = RecipesInShoppingList

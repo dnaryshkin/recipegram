@@ -26,7 +26,7 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
-    """Админка для модели Подписки."""
+    """Админка для модели подписок пользователей."""
     list_display = (
         'id',
         'user',

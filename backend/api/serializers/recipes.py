@@ -26,7 +26,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор для ингредиентов."""
+    """Сериализатор связи для ингредиентов в рецепте."""
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
@@ -58,7 +58,7 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
 
 
 class ReadRecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор для получения рецепта."""
+    """Сериализатор для получения (чтения) рецепта."""
     tags = TagSerializer(many=True, read_only=True)
     author = ReadUserSerializer(read_only=True)
     ingredients = IngredientRecipeSerializer(
@@ -247,4 +247,5 @@ class RecipeSerializer(serializers.ModelSerializer):
         return instance
 
     def to_representation(self, instance):
+        """Функция предоставления информации в виде ReadRecipeSerializer."""
         return ReadRecipeSerializer(instance, context=self.context).data

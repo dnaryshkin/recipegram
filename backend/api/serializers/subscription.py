@@ -6,7 +6,7 @@ from backend.users.models import Subscription
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
-    """Сериализатор получения подписки пользователя."""
+    """Сериализатор получения подписки пользователя на другого пользователя."""
     email = serializers.ReadOnlyField(source='following.email')
     id = serializers.ReadOnlyField(source='following.id')
     username = serializers.ReadOnlyField(source='following.username')
@@ -42,7 +42,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         return False
 
     def get_recipes(self, obj):
-        """Функция получения рецептов."""
+        """Функция получения рецептов пользователя."""
         recipes = Recipe.objects.filter(author=obj.following)
         request = self.context.get('request')
         if request:
@@ -92,4 +92,5 @@ class CreateSubscriptionSerializer(serializers.ModelSerializer):
         return Subscription.objects.create(**validated_data)
 
     def to_representation(self, instance):
+        """Функция предоставления ответа в виде SubscriptionSerializer."""
         return SubscriptionSerializer(instance, context=self.context).data
