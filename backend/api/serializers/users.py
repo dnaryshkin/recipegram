@@ -3,7 +3,7 @@ from django.core.validators import RegexValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from backend.api.serializers.base64_serializers import Base64ImageField
+from backend.api.serializers.base64 import Base64ImageField
 from backend.foodgram_backend.constants import MAX_EMAIL_LENGTH, \
     MAX_USERNAME_LENGTH, MAX_LASTNAME_LENGTH
 from backend.users.models import User, Subscription

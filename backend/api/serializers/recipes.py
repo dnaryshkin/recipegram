@@ -1,8 +1,8 @@
 from django.core.validators import MinValueValidator
 from rest_framework import serializers
 
-from backend.api.serializers.base64_serializers import Base64ImageField
-from backend.api.serializers.user_serializers import ReadUserSerializer
+from backend.api.serializers.base64 import Base64ImageField
+from backend.api.serializers.users import ReadUserSerializer
 from backend.foodgram_backend.constants import MIN_TIME_COOKING, \
     MIN_AMOUNT_INGREDIENTS
 from backend.recipes.models import Tag, Ingredient, IngredientInRecipe, Recipe, \
@@ -26,7 +26,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор для ингредиентов с указанием измерения и количества."""
+    """Сериализатор для ингредиентов."""
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
@@ -58,7 +58,7 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
 
 
 class ReadRecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор для получения рецепта (только чтение)."""
+    """Сериализатор для получения рецепта."""
     tags = TagSerializer(many=True, read_only=True)
     author = ReadUserSerializer(read_only=True)
     ingredients = IngredientRecipeSerializer(
