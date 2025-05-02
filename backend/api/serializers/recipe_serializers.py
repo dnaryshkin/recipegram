@@ -1,137 +1,12 @@
-from django.contrib.auth.password_validation import validate_password
-from django.core.files.base import ContentFile
-from django.core.validators import RegexValidator, MinValueValidator
+from django.core.validators import MinValueValidator
 from rest_framework import serializers
-import base64
 
-from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
-
+from backend.api.serializers.base64_serializers import Base64ImageField
+from backend.api.serializers.user_serializers import ReadUserSerializer
 from backend.foodgram_backend.constants import MIN_TIME_COOKING, \
-    MAX_EMAIL_LENGTH, MAX_USERNAME_LENGTH, MAX_LASTNAME_LENGTH, MIN_AMOUNT_INGREDIENTS
+    MIN_AMOUNT_INGREDIENTS
 from backend.recipes.models import Tag, Ingredient, IngredientInRecipe, Recipe, \
     Favorite, RecipesInShoppingList
-from backend.users.models import User, Subscription
-
-
-class Base64ImageField(serializers.ImageField):
-    """Сериализатор для изображений в формате base64."""
-    def to_internal_value(self, data):
-        """Функция декодирования данных base64."""
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-        return super().to_internal_value(data)
-
-
-class ReadUserSerializer(serializers.ModelSerializer):
-    """Сериализатор для получения профиля Пользователя (только чтение)."""
-    is_subscribed = serializers.SerializerMethodField()
-    avatar = Base64ImageField()
-
-    class Meta:
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-            'avatar',
-        )
-        read_only_fields = '__all__'
-
-    def get_is_subscribed(self, obj):
-        """Функция проверки подписки пользователя на автора."""
-        user = self.context.get('request').user
-        if user.is_authenticated:
-            return Subscription.objects.filter(
-                user=user,
-                following=obj
-            ).exists()
-        return False
-
-
-class CreateUserSerializer(serializers.ModelSerializer):
-    """Сериализатор для создания профиля пользователя."""
-    email = serializers.EmailField(
-        max_length=MAX_EMAIL_LENGTH,
-        required=True,
-        validators=[
-            UniqueValidator(
-                queryset=User.objects.all(),
-                message='Пользователь с таким email уже зарегистрирован!'
-            )
-        ],
-    )
-    username = serializers.CharField(
-        max_length=MAX_USERNAME_LENGTH,
-        required=True,
-        validators=[
-            RegexValidator(
-                regex=r'^[\w.@+-]+$',
-                message='Имя пользователя может содержать только буквы, '
-                        'цифры и "@.+-_"'
-            ),
-            UniqueValidator(
-                queryset=User.objects.all(),
-                message='Пользователь с таким ником уже зарегистрирован!'
-            )
-        ],
-    )
-    first_name = serializers.CharField(
-        max_length=MAX_USERNAME_LENGTH,
-        required=True,
-    )
-    last_name = serializers.CharField(
-        max_length=MAX_LASTNAME_LENGTH,
-        required=True,
-    )
-    password = serializers.CharField(
-        write_only=True,
-        required=True,
-        validators=[validate_password],
-    )
-
-    class Meta:
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-        )
-
-    def create(self, validated_data):
-        """Функция создания пользователя."""
-        user = User.objects.create_user(
-            email=validated_data['email'],
-            username=validated_data['username'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-            password=validated_data['password'],
-        )
-        return user
-
-
-class ChangePasswordSerializer(serializers.Serializer):
-    """Сериализатор для смены пароля."""
-    new_password = serializers.CharField(required=True)
-    current_password = serializers.CharField(required=True)
-
-    class Meta:
-        model = User
-
-
-class AvatarSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы с аватаром пользователей."""
-    avatar = Base64ImageField()
-
-    class Meta:
-        model = User
-        fields = ('avatar',)
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -139,7 +14,7 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ('id','name', 'slug')
+        fields = ('id', 'name', 'slug')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -147,7 +22,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = ('id','name','measurement_unit')
+        fields = ('id', 'name', 'measurement_unit')
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
@@ -373,93 +248,3 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         return ReadRecipeSerializer(instance, context=self.context).data
-
-
-class SubscriptionSerializer(serializers.ModelSerializer):
-    """Сериализатор получения подписки пользователя."""
-    email = serializers.ReadOnlyField(source='following.email')
-    id = serializers.ReadOnlyField(source='following.id')
-    username = serializers.ReadOnlyField(source='following.username')
-    first_name = serializers.ReadOnlyField(source='following.first_name')
-    last_name = serializers.ReadOnlyField(source='following.last_name')
-    is_subscribed = serializers.SerializerMethodField()
-    recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.SerializerMethodField()
-    avatar =serializers.ImageField(source='following.avatar')
-
-    class Meta:
-        model = Subscription
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-            'recipes',
-            'recipes_count',
-            'avatar',
-        )
-
-    def get_is_subscribed(self, obj):
-        """Функция проверки подписки на пользователя."""
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            return Subscription.objects.filter(
-                user=request.user,
-                following=obj.following,
-            ).exists()
-        return False
-
-    def get_recipes(self, obj):
-        """Функция получения рецептов."""
-        recipes = Recipe.objects.filter(author=obj.following)
-        request = self.context.get('request')
-        if request:
-            limit = request.query_params.get('recipes_limit')
-            if limit:
-                recipes = recipes[:int(limit)]
-        return MiniRecipeSerializer(recipes,
-                                    many=True,
-                                    context=self.context
-                                    ).data
-
-    def get_recipes_count(self, obj):
-        """Функция получения количества рецептов пользователя."""
-        return Recipe.objects.filter(author=obj.following).count()
-
-
-class CreateSubscriptionSerializer(serializers.ModelSerializer):
-    """Сериализатор для создания подписки на пользователя."""
-
-    class Meta:
-        model = Subscription
-        fields = (
-            'id',
-            'user',
-            'following',
-        )
-
-    def validate(self, data):
-        """Функция валидации подписки."""
-        user = self.context.get('request').user
-        following = data.get('following')
-        if user == following:
-            raise serializers.ValidationError(
-                'Нельзя подписаться на самого себя!'
-            )
-        if Subscription.objects.filter(
-                user=user,
-                following=following,
-        ).exists():
-            raise serializers.ValidationError(
-                'Вы уже подписались на данного пользователя!'
-            )
-        return data
-
-    def create(self, validated_data):
-        """Функция создания подписки на пользователя."""
-        return Subscription.objects.create(**validated_data)
-
-    def to_representation(self, instance):
-        return SubscriptionSerializer(instance, context=self.context).data
