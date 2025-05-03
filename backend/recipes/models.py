@@ -1,17 +1,15 @@
 from django.core.validators import MinValueValidator, MaxValueValidator, \
     RegexValidator
 from django.db import models
-from backend.foodgram_backend.constants import (
-    MAX_NAME_TAG_LENGTH,
-    MAX_SLUG_TAG_LENGTH,
-    MAX_NAME_INGREDIENT_LENGTH,
-    MAX_UNIT_LENGTH,
-    MAX_NAME_RECIPE_LENGTH,
-    MIN_TIME_COOKING,
-    MIN_AMOUNT_INGREDIENTS,
-)
-
-from backend.users.models import User
+from foodgram_backend.constants import (MAX_NAME_TAG_LENGTH,
+                                        MAX_SLUG_TAG_LENGTH,
+                                        MAX_NAME_INGREDIENT_LENGTH,
+                                        MAX_UNIT_LENGTH,
+                                        MAX_NAME_RECIPE_LENGTH,
+                                        MIN_TIME_COOKING,
+                                        MIN_AMOUNT_INGREDIENTS,
+                                        )
+from users.models import User
 
 
 class Tag(models.Model):
@@ -118,9 +116,9 @@ class Recipe(models.Model):
         return f'Рецепт: {self.name}'
 
 
-class IngredientInRecipe(Recipe):
+class IngredientInRecipe(models.Model):
     """Модель связи ингредиентов в рецепте."""
-    name = models.ForeignKey(
+    ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
         verbose_name='Ингредиент',
@@ -128,7 +126,7 @@ class IngredientInRecipe(Recipe):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name=''
+        verbose_name='Рецепт'
     )
     amount = models.PositiveIntegerField(
         verbose_name='Количество ингредиентов',
@@ -142,7 +140,7 @@ class IngredientInRecipe(Recipe):
     )
 
     class Meta:
-        ordering = ('name', 'recipe',)
+        ordering = ('ingredient', 'recipe',)
         verbose_name = 'ингедицент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецепте'
 
@@ -156,10 +154,12 @@ class RecipesInShoppingList(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        related_name='shopping_lists',
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
+        related_name='in_shopping_lists',
     )
 
     class Meta:

@@ -1,12 +1,16 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.validators import RegexValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from backend.api.serializers.base64 import Base64ImageField
-from backend.foodgram_backend.constants import MAX_EMAIL_LENGTH, \
-    MAX_USERNAME_LENGTH, MAX_LASTNAME_LENGTH
-from backend.users.models import User, Subscription
+from api.serializers.base64 import Base64ImageField
+from foodgram_backend.constants import (
+    MAX_EMAIL_LENGTH,
+    MAX_USERNAME_LENGTH,
+    MAX_LASTNAME_LENGTH,
+)
+from users.models import User, Subscription
 
 
 class ReadUserSerializer(serializers.ModelSerializer):
@@ -117,3 +121,8 @@ class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('avatar',)
+
+
+class UserTokenSerializer():
+    password
+    email

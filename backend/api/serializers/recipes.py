@@ -1,12 +1,20 @@
 from django.core.validators import MinValueValidator
 from rest_framework import serializers
 
-from backend.api.serializers.base64 import Base64ImageField
-from backend.api.serializers.users import ReadUserSerializer
-from backend.foodgram_backend.constants import MIN_TIME_COOKING, \
-    MIN_AMOUNT_INGREDIENTS
-from backend.recipes.models import Tag, Ingredient, IngredientInRecipe, Recipe, \
-    Favorite, RecipesInShoppingList
+from api.serializers.base64 import Base64ImageField
+from api.serializers.users import ReadUserSerializer
+from foodgram_backend.constants import (
+    MIN_TIME_COOKING,
+    MIN_AMOUNT_INGREDIENTS,
+)
+from recipes.models import (
+    Tag,
+    Ingredient,
+    IngredientInRecipe,
+    Recipe,
+    Favorite,
+    RecipesInShoppingList,
+)
 
 
 class TagSerializer(serializers.ModelSerializer):

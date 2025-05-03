@@ -32,13 +32,14 @@ class RecipeAdmin(admin.ModelAdmin):
     """Админка для рецептов."""
     list_display = ('id', 'name', 'author', 'cooking_time')
     filter_horizontal = ('tags', 'ingredients')
+    list_filter = ('tags',)
 
 
 @admin.register(IngredientInRecipe)
 class IngredientInRecipeAdmin(admin.ModelAdmin):
     """Админка для ингредиентов в рецепте."""
-    list_display = ('id', 'recipe', 'ingredient', 'amount')
-    list_select_related = ('recipe', 'ingredient')
+    list_display = ('id', 'ingredient', 'recipe', 'amount')
+    list_select_related = ('ingredient', 'recipe', 'amount')
     search_fields = ('recipe__name', 'ingredient__name')
     list_filter = ('recipe', 'ingredient')
 

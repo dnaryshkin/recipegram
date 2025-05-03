@@ -13,3 +13,8 @@ class IngredientFilter(filters.FilterSet):
     class Meta:
         model = Ingredient
         fields = ('name',)
+
+
+class RecipeFilter(filters.FilterSet):
+    """Класс для фильтрации рецептов."""
+    pass
