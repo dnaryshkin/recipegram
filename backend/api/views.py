@@ -263,29 +263,29 @@ class UserViewSet(viewsets.ModelViewSet):
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-        @action(
-            detail=False,
-            methods=['post'],
-            permission_classes=[IsAuthenticated]
+    @action(
+        detail=False,
+        methods=['post'],
+        permission_classes=[IsAuthenticated]
+    )
+    def set_password(self, request):
+        """Функция смены пароля пользователя."""
+        password_serializer = ChangePasswordSerializer(
+            data=request.data,
+            context={'request': request}
         )
-        def set_password(self, request):
-            """Функция смены пароля пользователя."""
-            password_serializer = ChangePasswordSerializer(
-                data=request.data,
-                context={'request': request}
+        if password_serializer.is_valid():
+            current_user = request.user
+            current_user.set_password(
+                password_serializer.validated_data['new_password']
             )
-            if password_serializer.is_valid():
-                current_user = request.user
-                current_user.set_password(
-                    serializer.validated_data['new_password']
-                )
-                current_user.save()
-                return Response(
-                    'Пароль изменен!',
-                    status=status.HTTP_200_OK
-                )
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+            current_user.save()
+            return Response(
+                'Пароль изменен!',
+                status=status.HTTP_204_NO_CONTENT
+            )
+        return Response(password_serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class RecipeRedirectView(viewsets.ViewSet):

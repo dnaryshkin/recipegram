@@ -113,6 +113,9 @@ class AvatarSerializer(serializers.ModelSerializer):
         model = User
         fields = ('avatar',)
 
+    def validate(self, values):
+        """Валидация аватара"""
+
 
 class ChangePasswordSerializer(serializers.Serializer):
     """Сериализатор для смены пароля."""
@@ -124,13 +127,14 @@ class ChangePasswordSerializer(serializers.Serializer):
         fields = ('new_password', 'current_password')
 
     def validate(self, data):
+        """Валидация пароля."""
         user = self.context['request'].user
         if not user.check_password(data['current_password']):
             raise serializers.ValidationError(
-                {'current_password': 'Неверный текущий пароль.'}
+                'Неверный текущий пароль.'
             )
         if data['current_password'] == data['new_password']:
             raise serializers.ValidationError(
-                {'new_password': 'Новый пароль должен отличаться от текущего.'}
+                'Новый пароль должен отличаться от текущего.'
             )
         return data
