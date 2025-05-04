@@ -29,7 +29,6 @@ class ReadUserSerializer(UserSerializer):
             'is_subscribed',
             'avatar',
         )
-        read_only_fields = '__all__'
 
     def get_is_subscribed(self, obj):
         """Функция проверки подписки пользователя на автора."""
@@ -91,6 +90,7 @@ class CreateUserSerializer(UserCreateSerializer):
             'username',
             'first_name',
             'last_name',
+            'password',
         )
 
     def create(self, validated_data):
@@ -107,8 +107,30 @@ class CreateUserSerializer(UserCreateSerializer):
 
 class AvatarSerializer(serializers.ModelSerializer):
     """Сериализатор для работы с аватаром пользователей."""
-    avatar = Base64ImageField()
+    avatar = Base64ImageField(required=False, allow_null=True)
 
     class Meta:
         model = User
         fields = ('avatar',)
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    """Сериализатор для смены пароля."""
+    new_password = serializers.CharField(required=True)
+    current_password = serializers.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = ('new_password', 'current_password')
+
+    def validate(self, data):
+        user = self.context['request'].user
+        if not user.check_password(data['current_password']):
+            raise serializers.ValidationError(
+                {'current_password': 'Неверный текущий пароль.'}
+            )
+        if data['current_password'] == data['new_password']:
+            raise serializers.ValidationError(
+                {'new_password': 'Новый пароль должен отличаться от текущего.'}
+            )
+        return data

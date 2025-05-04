@@ -3,7 +3,6 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser.serializers import UserSerializer
 from rest_framework import mixins
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -18,7 +17,7 @@ from api.serializers.recipes import IngredientSerializer, \
 from api.serializers.subscription import SubscriptionSerializer, \
     CreateSubscriptionSerializer
 from api.serializers.users import ReadUserSerializer, \
-    AvatarSerializer
+    AvatarSerializer, CreateUserSerializer, ChangePasswordSerializer
 from recipes.models import Ingredient, Tag, Recipe, \
     RecipesInShoppingList, Favorite, IngredientInRecipe
 from users.models import User, Subscription
@@ -180,7 +179,11 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     permission_classes = [AllowAny]
     pagination_class = CustomPageNumberPagination
-    serializer_class = ReadUserSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return CreateUserSerializer
+        return ReadUserSerializer
 
     @action(
         detail=False,
@@ -209,7 +212,7 @@ class UserViewSet(viewsets.ModelViewSet):
     )
     def me(self, request):
         """Функция отображения профиля текущего пользователя."""
-        serializer = UserSerializer(request.user, context={'request': request})
+        serializer = ReadUserSerializer(request.user, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
@@ -259,6 +262,30 @@ class UserViewSet(viewsets.ModelViewSet):
                 )
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+        @action(
+            detail=False,
+            methods=['post'],
+            permission_classes=[IsAuthenticated]
+        )
+        def set_password(self, request):
+            """Функция смены пароля пользователя."""
+            password_serializer = ChangePasswordSerializer(
+                data=request.data,
+                context={'request': request}
+            )
+            if password_serializer.is_valid():
+                current_user = request.user
+                current_user.set_password(
+                    serializer.validated_data['new_password']
+                )
+                current_user.save()
+                return Response(
+                    'Пароль изменен!',
+                    status=status.HTTP_200_OK
+                )
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class RecipeRedirectView(viewsets.ViewSet):

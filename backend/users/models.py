@@ -6,6 +6,7 @@ from foodgram_backend.constants import (MAX_EMAIL_LENGTH,
                                         MAX_USERNAME_LENGTH,
                                         MAX_FIRSNAME_LENGTH,
                                         MAX_LASTNAME_LENGTH,
+                                        MAX_PASSWORD_LENGTH,
                                         )
 
 
@@ -41,6 +42,9 @@ class User(AbstractUser):
         blank=True,
         null=True,
         verbose_name='Аватар пользователя',
+    )
+    password = models.CharField(
+        max_length=MAX_PASSWORD_LENGTH,
     )
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username', 'first_name', 'last_name')
