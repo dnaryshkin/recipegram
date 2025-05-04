@@ -21,6 +21,7 @@ THIRD_PARTY_APPS = [
     'django_filters',
     'rest_framework',
     'rest_framework.authtoken',
+    'djoser',
 ]
 
 LOCAL_APPS = [

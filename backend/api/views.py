@@ -1,12 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
+from djoser.serializers import UserSerializer
 from rest_framework import mixins
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from api.filters import IngredientFilter, RecipeFilter
@@ -14,8 +16,13 @@ from api.pagination import CustomPageNumberPagination
 from api.permissions import IsAdminAuthorOrReadOnly
 from api.serializers.recipes import IngredientSerializer, \
     TagSerializer, ReadRecipeSerializer, RecipeSerializer, MiniRecipeSerializer
+from api.serializers.subscription import SubscriptionSerializer, \
+    CreateSubscriptionSerializer
+from api.serializers.users import CreateUserSerializer, ReadUserSerializer, \
+    ChangePasswordSerializer, AvatarSerializer
 from recipes.models import Ingredient, Tag, Recipe, \
     RecipesInShoppingList, Favorite, IngredientInRecipe
+from users.models import Subscription
 
 User = get_user_model()
 
@@ -170,49 +177,91 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_204_NO_CONTENT,
                 )
 
-# class UserViewSet(viewsets.ModelViewSet):
-#     """Вьюсет для пользователей."""
-#     queryset = User.objects.all()
-#     pagination_class = CustomPageNumberPagination
-#
-#     def get_serializer_class(self):
-#
-#         if self.action == 'create':
-#             return CreateUserSerializer
-#         elif self.action == 'set_password':
-#             return ChangePasswordSerializer
-#         elif self.action == 'avatar':
-#             return AvatarSerializer
-#         return ReadUserSerializer
-#
-#
-# @action(detail=True, methods=['post'])
-#
-#
-# def set_password(self, request, pk=None):
-#     user = self.get_object()
-#     serializer = PasswordSerializer(data=request.data)
-#     if serializer.is_valid():
-#         user.set_password(serializer.validated_data['password'])
-#         user.save()
-#         return Response({'status': 'password set'})
-#     else:
-#         return Response(serializer.errors,
-#                         status=status.HTTP_400_BAD_REQUEST)
-#
-#
-# @action(detail=True, methods=["put"], name="Change Password")
-# def password(self, request, pk=None):
-#     """Update the user's password."""
-#     ...
-#
-#
-# @password.mapping.delete
-# def delete_password(self, request, pk=None):
-#     """Delete the user's password."""
-#     ...
-#
-#
-# class SubscriberViewSet(viewsets.ModelViewSet):
-#     """Вьюсет для подписок."""
-#     serializer_class = S
+
+class UserViewSet(viewsets.ModelViewSet):
+    """Вьюсет для работы с пользователями."""
+    queryset = User.objects.all()
+    permission_classes = [AllowAny]
+    pagination_class = CustomPageNumberPagination
+    serializer_class = ReadUserSerializer
+
+    @action(
+        detail=False,
+        methods=['put', 'delete'],
+        permission_classes=[IsAuthenticated],
+        url_path='me/avatar'
+    )
+    def avatar(self, request):
+        """Функция добавления или удаления аватара текущего пользователя."""
+        user = request.user
+        if request.method == 'PUT':
+            serializer = AvatarSerializer(user, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        elif request.method == 'DELETE':
+            user.avatar.delete()
+            user.avatar = None
+            user.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=[IsAuthenticated],
+    )
+    def me(self, request):
+        """Функция отображения профиля текущего пользователя."""
+        serializer = UserSerializer(request.user, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=[IsAuthenticated],
+    )
+    def subscriptions(self, request):
+        """
+        Функция отображения подписок пользователя на других пользователей.
+        """
+        subscriptions = Subscription.objects.filter(user=request.user)
+        page = self.paginate_queryset(subscriptions)
+        serializer = SubscriptionSerializer(
+            page,
+            many=True,
+            context={'request': request}
+        )
+        return self.get_paginated_response(serializer.data)
+
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated]
+    )
+    def subscribe(self, request, pk=None):
+        """Подписка или отписка от пользователя."""
+        user = request.user
+        following = get_object_or_404(User, pk=pk)
+        if request.method == 'POST':
+            serializer = CreateSubscriptionSerializer(
+                data={'user': user.id, 'following': following.id},
+                context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if request.method == 'DELETE':
+            subscription = Subscription.objects.filter(
+                user=user,
+                following=following
+            )
+            if not subscription.exists():
+                return Response(
+                    'Вы не подписаны на этого пользователя.',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            subscription.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+

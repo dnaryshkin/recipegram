@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.validators import RegexValidator
+from djoser.serializers import UserSerializer, UserCreateSerializer
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
@@ -13,7 +14,7 @@ from foodgram_backend.constants import (
 from users.models import User, Subscription
 
 
-class ReadUserSerializer(serializers.ModelSerializer):
+class ReadUserSerializer(UserSerializer):
     """Сериализатор для получения профиля Пользователя (только чтение)."""
     is_subscribed = serializers.SerializerMethodField()
     avatar = Base64ImageField()
@@ -42,7 +43,7 @@ class ReadUserSerializer(serializers.ModelSerializer):
         return False
 
 
-class CreateUserSerializer(serializers.ModelSerializer):
+class CreateUserSerializer(UserCreateSerializer):
     """Сериализатор для создания профиля пользователя."""
     email = serializers.EmailField(
         max_length=MAX_EMAIL_LENGTH,
@@ -105,15 +106,6 @@ class CreateUserSerializer(serializers.ModelSerializer):
         return user
 
 
-class ChangePasswordSerializer(serializers.Serializer):
-    """Сериализатор для смены пароля."""
-    new_password = serializers.CharField(required=True)
-    current_password = serializers.CharField(required=True)
-
-    class Meta:
-        model = User
-
-
 class AvatarSerializer(serializers.ModelSerializer):
     """Сериализатор для работы с аватаром пользователей."""
     avatar = Base64ImageField()
@@ -121,8 +113,3 @@ class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('avatar',)
-
-
-class UserTokenSerializer():
-    password
-    email
