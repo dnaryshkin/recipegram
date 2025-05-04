@@ -263,6 +263,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class RecipeRedirectView(viewsets.ViewSet):
     """Перенаправление на полный рецепт по короткой ссылке."""
+
     def link_redirect(self, request, short_link):
         """Функция перенаправления на страницу рецепта."""
         recipe = get_object_or_404(Recipe, short_link=short_link)
