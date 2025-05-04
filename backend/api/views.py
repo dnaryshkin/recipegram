@@ -13,7 +13,8 @@ from api.filters import IngredientFilter, RecipeFilter
 from api.pagination import CustomPageNumberPagination
 from api.permissions import IsAuthorOrReadOnly
 from api.serializers.recipes import IngredientSerializer, \
-    TagSerializer, ReadRecipeSerializer, RecipeSerializer, MiniRecipeSerializer
+    TagSerializer, ReadRecipeSerializer, RecipeSerializer, \
+    MiniRecipeSerializer, IngredientInRecipeSerializer
 from api.serializers.subscription import SubscriptionSerializer, \
     CreateSubscriptionSerializer
 from api.serializers.users import ReadUserSerializer, \
@@ -110,8 +111,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 recipe=recipe,
                 user=user,
             )
+            serializer = MiniRecipeSerializer(
+                recipe,
+                context={'request': request}
+            )
             return Response(
-                MiniRecipeSerializer.data,
+                serializer.data,
                 status=status.HTTP_201_CREATED,
             )
         if request.method == 'DELETE':
@@ -175,12 +180,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             Favorite.objects.create(user=user, recipe=recipe)
+            serializer = MiniRecipeSerializer(
+                recipe,
+                context={'request': request}
+            )
             return Response(
-                MiniRecipeSerializer.data,
+                serializer.data,
                 status=status.HTTP_201_CREATED,
             )
         if request.method == 'DELETE':
-            recipe_favorite = RecipesInShoppingList.objects.filter().first()
+            recipe_favorite = Favorite.objects.filter(
+                user=user,
+                recipe=recipe
+            ).first()
             if recipe_favorite:
                 recipe_favorite.delete()
                 return Response(
