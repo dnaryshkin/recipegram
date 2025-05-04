@@ -1,7 +1,6 @@
-from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.serializers import UserSerializer
@@ -18,13 +17,11 @@ from api.serializers.recipes import IngredientSerializer, \
     TagSerializer, ReadRecipeSerializer, RecipeSerializer, MiniRecipeSerializer
 from api.serializers.subscription import SubscriptionSerializer, \
     CreateSubscriptionSerializer
-from api.serializers.users import CreateUserSerializer, ReadUserSerializer, \
-    ChangePasswordSerializer, AvatarSerializer
+from api.serializers.users import ReadUserSerializer, \
+    AvatarSerializer
 from recipes.models import Ingredient, Tag, Recipe, \
     RecipesInShoppingList, Favorite, IngredientInRecipe
-from users.models import Subscription
-
-User = get_user_model()
+from users.models import User, Subscription
 
 
 class ListRetrieveViewSet(
@@ -244,7 +241,7 @@ class UserViewSet(viewsets.ModelViewSet):
         following = get_object_or_404(User, pk=pk)
         if request.method == 'POST':
             serializer = CreateSubscriptionSerializer(
-                data={'user': user.id, 'following': following.id},
+                data={'user': user.id, 'following': following.pk},
                 context={'request': request}
             )
             serializer.is_valid(raise_exception=True)
@@ -264,4 +261,10 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-
+class RecipeRedirectView(viewsets.ViewSet):
+    """Перенаправление на полный рецепт по короткой ссылке."""
+    def link_redirect(self, request, short_link):
+        """Функция перенаправления на страницу рецепта."""
+        recipe = get_object_or_404(Recipe, short_link=short_link)
+        full_recipe_url = request.build_absolute_uri(f'/recipes/{recipe.pk}')
+        return redirect(full_recipe_url)
