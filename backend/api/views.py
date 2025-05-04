@@ -11,7 +11,7 @@ from rest_framework.response import Response
 
 from api.filters import IngredientFilter, RecipeFilter
 from api.pagination import CustomPageNumberPagination
-from api.permissions import IsAdminAuthorOrReadOnly
+from api.permissions import IsAuthorOrReadOnly
 from api.serializers.recipes import IngredientSerializer, \
     TagSerializer, ReadRecipeSerializer, RecipeSerializer, MiniRecipeSerializer
 from api.serializers.subscription import SubscriptionSerializer, \
@@ -56,7 +56,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
             return (IsAuthenticated(),)
         if self.action in ('update', 'partial_update', 'destroy'):
-            return (IsAdminAuthorOrReadOnly(),)
+            return (IsAuthorOrReadOnly(),)
         return (AllowAny(),)
 
     def get_serializer_class(self):

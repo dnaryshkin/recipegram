@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
-class IsAdminAuthorOrReadOnly(BasePermission):
+class IsAuthorOrReadOnly(BasePermission):
     """
     GET-запросы доступны всем пользователям;
     POST-запросы доступны только аутентифицированным пользователям;
@@ -16,5 +16,4 @@ class IsAdminAuthorOrReadOnly(BasePermission):
             return True
         return (
             obj.author == request.user
-            or request.user.is_admin
         )
