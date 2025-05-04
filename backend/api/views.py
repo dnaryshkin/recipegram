@@ -49,8 +49,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
-    permission_classes = (IsAdminAuthorOrReadOnly,)
     http_method_names = ('get', 'post', 'patch', 'delete')
+
+    def get_permissions(self):
+        """Функция выбора прав доступа."""
+        if self.action == 'create':
+            return (IsAuthenticated(),)
+        if self.action in ('update', 'partial_update', 'destroy'):
+            return (IsAdminAuthorOrReadOnly(),)
+        return (AllowAny(),)
 
     def get_serializer_class(self):
         """Функция выбора сериализатора."""
@@ -60,9 +67,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Функция сохраняет рецепт устанавливая пользователя автором."""
-        serializer.save(user=self.request.user)
+        serializer.save(author=self.request.user)
 
-    @action(detail=True, methods=['get'])
+    @action(
+        detail=True,
+        methods=['get'],
+        url_path='get-link',
+        permission_classes=(AllowAny,),
+    )
     def get_link(self, request, pk=None):
         """Функция получения короткой ссылки рецепта."""
         recipe = self.get_object()
@@ -71,12 +83,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
             kwargs={'pk': recipe.pk}
         )
         full_short_link = request.build_absolute_uri(short_link)
-        return Response({'short-link': full_short_link})
+        return Response(
+            {'short-link': full_short_link},
+            status=status.HTTP_200_OK,
+        )
 
     @action(
         detail=True,
         methods=['post', 'delete'],
-        permission_classes=[IsAuthenticated, ]
+        permission_classes=(IsAuthenticated,),
     )
     def shopping_cart(self, request, pk=None):
         """Функция добавления/удаления рецепта в список покупок."""
@@ -114,7 +129,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=['get'],
-        permission_classes=[IsAuthenticated]
+        permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
         """Функция скачивания списка покупок в формате txt."""
@@ -147,7 +162,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
-        permission_classes=[IsAuthenticated, ]
+        permission_classes=(IsAuthenticated,),
     )
     def favorite(self, request, pk=None):
         """Функция добавления/удаления рецепта в избранное."""
@@ -290,8 +305,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class RecipeRedirectView(viewsets.ViewSet):
     """Перенаправление на полный рецепт по короткой ссылке."""
-    def link_redirect(self, request, short_link):
+    def link_redirect(self, request, pk):
         """Функция перенаправления на страницу рецепта."""
-        recipe = get_object_or_404(Recipe, short_link=short_link)
-        full_recipe_url = request.build_absolute_uri(f'/recipes/{recipe.pk}')
+        recipe = get_object_or_404(Recipe, pk=pk)
+        full_recipe_url = request.build_absolute_uri(f'/recipes/{recipe.pk}/')
         return redirect(full_recipe_url)

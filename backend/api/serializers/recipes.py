@@ -69,10 +69,10 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для получения (чтения) рецепта."""
     tags = TagSerializer(many=True, read_only=True)
     author = ReadUserSerializer(read_only=True)
-    ingredients = IngredientRecipeSerializer(
+    ingredients = IngredientInRecipeSerializer(
         many=True,
         read_only=True,
-        source='ingredientinrecipe',
+        source='recipe_ingredient_amounts',
     )
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
@@ -92,32 +92,26 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
         )
-        read_only_fields = (
-            'id',
-            'name',
-            'text',
-            'cooking_time'
-        )
 
-        def get_is_favorited(self, obj):
-            """Функция проверки нахождения рецепта в избранном."""
-            user = self.context.get('request').user
-            if not user.is_authenticated:
-                return False
-            return Favorite.objects.filter(
-                user=user,
-                recipe=obj
-            ).exists()
+    def get_is_favorited(self, obj):
+        """Функция проверки нахождения рецепта в избранном."""
+        user = self.context.get('request').user
+        if not user.is_authenticated:
+            return False
+        return Favorite.objects.filter(
+            user=user,
+            recipe=obj
+        ).exists()
 
-        def get_is_in_shopping_cart(self, obj):
-            """Функция проверки нахождения рецепта в списке покупок."""
-            user = self.context.get('request').user
-            if not user.is_authenticated:
-                return False
-            return RecipesInShoppingList.objects.filter(
-                user=user,
-                recipe=obj
-            ).exists()
+    def get_is_in_shopping_cart(self, obj):
+        """Функция проверки нахождения рецепта в списке покупок."""
+        user = self.context.get('request').user
+        if not user.is_authenticated:
+            return False
+        return RecipesInShoppingList.objects.filter(
+            user=user,
+            recipe=obj
+        ).exists()
 
 
 class MiniRecipeSerializer(serializers.ModelSerializer):
@@ -227,6 +221,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         author = self.context.get('request').user
+        validated_data.pop('author', None)
         recipe = Recipe.objects.create(author=author, **validated_data)
         recipe.tags.set(tags)
         for ingredient in ingredients:
@@ -234,7 +229,6 @@ class RecipeSerializer(serializers.ModelSerializer):
                 recipe=recipe,
                 ingredient=ingredient.get('ingredient'),
                 amount=ingredient.get('amount'),
-                measurement_unit=ingredient.get('measurement_unit'),
             )
         return recipe
 

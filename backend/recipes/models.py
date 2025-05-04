@@ -81,6 +81,7 @@ class Recipe(models.Model):
         Ingredient,
         through='IngredientInRecipe',
         verbose_name='Ингредиенты',
+        related_name='recipe_ingredients',
     )
     name = models.CharField(
         max_length=MAX_NAME_RECIPE_LENGTH,
@@ -126,7 +127,8 @@ class IngredientInRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name='Рецепт'
+        verbose_name='Рецепт',
+        related_name='recipe_ingredient_amounts',
     )
     amount = models.PositiveIntegerField(
         verbose_name='Количество ингредиентов',
@@ -139,14 +141,15 @@ class IngredientInRecipe(models.Model):
         ],
     )
 
+
     class Meta:
         ordering = ('ingredient', 'recipe',)
         verbose_name = 'ингедицент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецепте'
 
     def __str__(self):
-        return (f'Ингредиент {self.name} в количестве {self.amount} '
-                f'{self.name.measurement_unit}')
+        return (f'Ингредиент {self.ingredient.name} в количестве {self.amount} '
+                f'{self.ingredient.measurement_unit}')
 
 
 class RecipesInShoppingList(models.Model):

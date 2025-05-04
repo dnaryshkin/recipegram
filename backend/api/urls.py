@@ -25,8 +25,8 @@ urlpatterns = [
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
     path(
-        's/<str:short_link>/',
+        's/<int:pk>/',
         RecipeRedirectView.as_view({'get': 'link_redirect'}),
-        name='link_redirect'
+        name='short-link'
     ),
 ]
