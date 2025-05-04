@@ -1,7 +1,7 @@
 from django.contrib.auth.password_validation import validate_password
 from django.core.validators import RegexValidator
 from djoser.serializers import UserSerializer, UserCreateSerializer
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 
 from api.serializers.base64 import Base64ImageField
@@ -107,14 +107,11 @@ class CreateUserSerializer(UserCreateSerializer):
 
 class AvatarSerializer(serializers.ModelSerializer):
     """Сериализатор для работы с аватаром пользователей."""
-    avatar = Base64ImageField(required=False, allow_null=True)
+    avatar = Base64ImageField(required=True, allow_null=False)
 
     class Meta:
         model = User
         fields = ('avatar',)
-
-    def validate(self, values):
-        """Валидация аватара"""
 
 
 class ChangePasswordSerializer(serializers.Serializer):
