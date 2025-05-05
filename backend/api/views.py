@@ -50,11 +50,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
-    http_method_names = ('get', 'post', 'patch', 'delete')
+    permission_classes = (IsAuthorOrReadOnly,)
+    serializer_class = RecipeSerializer
 
     def get_permissions(self):
         """Функция выбора прав доступа."""
-        if self.action == 'create':
+        if self.action in ('create', 'shopping_cart', 'favorite'):
             return (IsAuthenticated(),)
         if self.action in ('update', 'partial_update', 'destroy'):
             return (IsAuthorOrReadOnly(),)
@@ -64,7 +65,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Функция выбора сериализатора."""
         if self.action in ('list', 'retrieve'):
             return ReadRecipeSerializer
-        return RecipeSerializer
+        if self.action in ('create', 'update', 'partial_update'):
+            return RecipeSerializer
+        return super().get_serializer()
+
+    def get_serializer(self, *args, **kwargs):
+        if self.action in ('update', 'partial_update'):
+            kwargs['partial'] = False
+        return super().get_serializer(*args, **kwargs)
 
     def perform_create(self, serializer):
         """Функция сохраняет рецепт устанавливая пользователя автором."""
@@ -124,11 +132,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 recipe=recipe,
                 user=user,
             ).first()
-            if not recipe_shop_list:
+            if recipe_shop_list:
                 recipe_shop_list.delete()
                 return Response(
                     'Рецепт удален из списка покупок!',
                     status=status.HTTP_204_NO_CONTENT,
+                )
+            else:
+                return Response(
+                    'Рецепт не добавлен в список покупок!',
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
     @action(
@@ -198,6 +211,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 return Response(
                     'Данный рецепт удален из избранного!',
                     status=status.HTTP_204_NO_CONTENT,
+                )
+            else:
+                return Response(
+                    'Рецепта не было в избранном!',
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
 
