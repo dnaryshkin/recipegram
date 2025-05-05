@@ -234,18 +234,20 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Функция обновления рецепта."""
-        ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients', None)
+        tags = validated_data.pop('tags', None)
         instance = super().update(instance, validated_data)
-        instance.tags.clear()
-        instance.tags.set(tags)
-        instance.ingredientinrecipe.all().delete()
-        for ingredient_data in ingredients:
-            IngredientInRecipe.objects.create(
-                recipe=instance,
-                ingredient=ingredient_data.get('ingredient'),
-                amount=ingredient_data.get('amount'),
-            )
+        if tags is not None:
+            instance.tags.clear()
+            instance.tags.set(tags)
+        if ingredients is not None:
+            instance.recipe_ingredient_amounts.all().delete()
+            for ingredient_data in ingredients:
+                IngredientInRecipe.objects.create(
+                    recipe=instance,
+                    ingredient=ingredient_data.get('ingredient'),
+                    amount=ingredient_data.get('amount'),
+                )
         return instance
 
     def to_representation(self, instance):
