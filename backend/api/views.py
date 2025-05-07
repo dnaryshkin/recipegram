@@ -3,25 +3,26 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import mixins
-from rest_framework import viewsets, status
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from api.filters import IngredientFilter, RecipeFilter
 from api.pagination import CustomPageNumberPagination
 from api.permissions import IsAuthorOrReadOnly
-from api.serializers.recipes import IngredientSerializer, \
-    TagSerializer, ReadRecipeSerializer, RecipeSerializer, \
-    MiniRecipeSerializer, IngredientInRecipeSerializer
-from api.serializers.subscription import SubscriptionSerializer, \
-    CreateSubscriptionSerializer
-from api.serializers.users import ReadUserSerializer, \
-    AvatarSerializer, CreateUserSerializer, ChangePasswordSerializer
-from recipes.models import Ingredient, Tag, Recipe, \
-    RecipesInShoppingList, Favorite, IngredientInRecipe
-from users.models import User, Subscription
+from api.serializers.recipes import (IngredientSerializer,
+                                     MiniRecipeSerializer,
+                                     ReadRecipeSerializer,
+                                     RecipeSerializer,
+                                     TagSerializer)
+from api.serializers.subscription import (CreateSubscriptionSerializer,
+                                          SubscriptionSerializer)
+from api.serializers.users import (AvatarSerializer, ChangePasswordSerializer,
+                                   CreateUserSerializer, ReadUserSerializer)
+from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
+                            RecipesInShoppingList, Tag)
+from users.models import Subscription, User
 
 
 class ListRetrieveViewSet(
@@ -257,7 +258,8 @@ class UserViewSet(viewsets.ModelViewSet):
     )
     def me(self, request):
         """Функция отображения профиля текущего пользователя."""
-        serializer = ReadUserSerializer(request.user, context={'request': request})
+        serializer = ReadUserSerializer(request.user,
+                                        context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
@@ -335,6 +337,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class RecipeRedirectView(viewsets.ViewSet):
     """Перенаправление на полный рецепт по короткой ссылке."""
+
     def link_redirect(self, request, pk):
         """Функция перенаправления на страницу рецепта."""
         recipe = get_object_or_404(Recipe, pk=pk)

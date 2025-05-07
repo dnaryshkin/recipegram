@@ -1,4 +1,5 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.permissions import SAFE_METHODS, BasePermission
+
 
 class IsAuthorOrReadOnly(BasePermission):
     """
@@ -6,7 +7,6 @@ class IsAuthorOrReadOnly(BasePermission):
     POST-запросы доступны только аутентифицированным пользователям;
     PATCH и DELETE-запросы доступны автору.
     """
-
     def has_object_permission(self, request, view, obj):
         if request.method in SAFE_METHODS:
             return True

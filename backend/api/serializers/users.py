@@ -1,16 +1,13 @@
 from django.contrib.auth.password_validation import validate_password
 from django.core.validators import RegexValidator
-from djoser.serializers import UserSerializer, UserCreateSerializer
-from rest_framework import serializers, status
+from djoser.serializers import UserCreateSerializer, UserSerializer
+from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from api.serializers.base64 import Base64ImageField
-from foodgram_backend.constants import (
-    MAX_EMAIL_LENGTH,
-    MAX_USERNAME_LENGTH,
-    MAX_LASTNAME_LENGTH,
-)
-from users.models import User, Subscription
+from foodgram_backend.constants import (MAX_EMAIL_LENGTH, MAX_LASTNAME_LENGTH,
+                                        MAX_USERNAME_LENGTH)
+from users.models import Subscription, User
 
 
 class ReadUserSerializer(UserSerializer):

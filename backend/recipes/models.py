@@ -1,14 +1,13 @@
-from django.core.validators import MinValueValidator, MaxValueValidator, \
-    RegexValidator
+from django.core.validators import (MaxValueValidator, MinValueValidator,
+                                    RegexValidator)
 from django.db import models
-from foodgram_backend.constants import (MAX_NAME_TAG_LENGTH,
-                                        MAX_SLUG_TAG_LENGTH,
-                                        MAX_NAME_INGREDIENT_LENGTH,
-                                        MAX_UNIT_LENGTH,
+
+from foodgram_backend.constants import (MAX_NAME_INGREDIENT_LENGTH,
                                         MAX_NAME_RECIPE_LENGTH,
-                                        MIN_TIME_COOKING,
+                                        MAX_NAME_TAG_LENGTH,
+                                        MAX_SLUG_TAG_LENGTH, MAX_UNIT_LENGTH,
                                         MIN_AMOUNT_INGREDIENTS,
-                                        )
+                                        MIN_TIME_COOKING)
 from users.models import User
 
 
@@ -190,6 +189,3 @@ class Favorite(models.Model):
         ordering = ('recipe',)
         verbose_name = 'рецепт в избранном'
         verbose_name_plural= 'Рецепты в избранном'
-
-
-

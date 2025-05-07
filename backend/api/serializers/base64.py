@@ -1,11 +1,11 @@
 import base64
+
 from django.core.files.base import ContentFile
 from rest_framework import serializers
 
 
 class Base64ImageField(serializers.ImageField):
     """Сериализатор для изображений в формате base64."""
-
     def to_internal_value(self, data):
         """Функция декодирования изображений base64."""
         if isinstance(data, str) and data.startswith('data:image'):
