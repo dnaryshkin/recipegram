@@ -1,13 +1,14 @@
-from django.core.validators import (MaxValueValidator, MinValueValidator,
-                                    RegexValidator)
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
-
-from foodgram_backend.constants import (MAX_NAME_INGREDIENT_LENGTH,
-                                        MAX_NAME_RECIPE_LENGTH,
-                                        MAX_NAME_TAG_LENGTH,
-                                        MAX_SLUG_TAG_LENGTH, MAX_UNIT_LENGTH,
-                                        MIN_AMOUNT_INGREDIENTS,
-                                        MIN_TIME_COOKING)
+from foodgram_backend.constants import (
+    MAX_NAME_INGREDIENT_LENGTH,
+    MAX_NAME_RECIPE_LENGTH,
+    MAX_NAME_TAG_LENGTH,
+    MAX_SLUG_TAG_LENGTH,
+    MAX_UNIT_LENGTH,
+    MIN_AMOUNT_INGREDIENTS,
+    MIN_TIME_COOKING,
+)
 from users.models import User
 
 
@@ -33,8 +34,8 @@ class Tag(models.Model):
 
     class Meta:
         ordering = ('name',)
-        verbose_name='тег'
-        verbose_name_plural='Теги'
+        verbose_name = 'тег'
+        verbose_name_plural = 'Теги'
 
     def __str__(self):
         return f'Тег: {self.name}'
@@ -110,7 +111,7 @@ class Recipe(models.Model):
     class Meta:
         ordering = ('name',)
         verbose_name = 'рецепт'
-        verbose_name_plural= 'Рецепты'
+        verbose_name_plural = 'Рецепты'
 
     def __str__(self):
         return f'Рецепт: {self.name}'
@@ -140,15 +141,16 @@ class IngredientInRecipe(models.Model):
         ],
     )
 
-
     class Meta:
         ordering = ('ingredient', 'recipe',)
         verbose_name = 'ингедицент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецепте'
 
     def __str__(self):
-        return (f'Ингредиент {self.ingredient.name} в количестве {self.amount} '
-                f'{self.ingredient.measurement_unit}')
+        return (
+            f'Ингредиент {self.ingredient.name} в количестве {self.amount} '
+            f'{self.ingredient.measurement_unit}'
+        )
 
 
 class RecipesInShoppingList(models.Model):
@@ -170,8 +172,10 @@ class RecipesInShoppingList(models.Model):
         verbose_name_plural = 'Рецепты в списке покупок'
 
     def __str__(self):
-        return (f'Рецепт: {self.recipe.name} в списке покупок у '
-                f'{self.user.username}')
+        return (
+            f'Рецепт: {self.recipe.name} в списке покупок у '
+            f'{self.user.username}'
+        )
 
 
 class Favorite(models.Model):
@@ -188,4 +192,4 @@ class Favorite(models.Model):
     class Meta:
         ordering = ('recipe',)
         verbose_name = 'рецепт в избранном'
-        verbose_name_plural= 'Рецепты в избранном'
+        verbose_name_plural = 'Рецепты в избранном'
