@@ -1,41 +1,25 @@
+from api.filters import IngredientFilter, RecipeFilter
+from api.pagination import CustomPageNumberPagination
+from api.permissions import IsAuthorOrReadOnly
+from api.serializers.recipes import (IngredientSerializer,
+                                     MiniRecipeSerializer,
+                                     ReadRecipeSerializer, RecipeSerializer,
+                                     TagSerializer)
+from api.serializers.subscription import (CreateSubscriptionSerializer,
+                                          SubscriptionSerializer)
+from api.serializers.users import (AvatarSerializer, ChangePasswordSerializer,
+                                   CreateUserSerializer, ReadUserSerializer)
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
+from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
+                            RecipesInShoppingList, Tag)
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-
-from api.filters import IngredientFilter, RecipeFilter
-from api.pagination import CustomPageNumberPagination
-from api.permissions import IsAuthorOrReadOnly
-from api.serializers.recipes import (
-    IngredientSerializer,
-    MiniRecipeSerializer,
-    ReadRecipeSerializer,
-    RecipeSerializer,
-    TagSerializer,
-)
-from api.serializers.subscription import (
-    CreateSubscriptionSerializer,
-    SubscriptionSerializer,
-)
-from api.serializers.users import (
-    AvatarSerializer,
-    ChangePasswordSerializer,
-    CreateUserSerializer,
-    ReadUserSerializer,
-)
-from recipes.models import (
-    Favorite,
-    Ingredient,
-    IngredientInRecipe,
-    Recipe,
-    RecipesInShoppingList,
-    Tag,
-)
 from users.models import Subscription, User
 
 
