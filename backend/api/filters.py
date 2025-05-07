@@ -1,14 +1,12 @@
 from django_filters import rest_framework as filters
 import django_filters
 from django.db.models import Q
-from recipes.models import Ingredient
+from recipes.models import Ingredient, Tag
 
 
 class IngredientFilter(filters.FilterSet):
     """Класс для фильтрации ингредиентов по названию."""
-    name = django_filters.CharFilter(
-        field_name='name',
-    )
+    name = django_filters.CharFilter(lookup_expr='icontains')
 
     class Meta:
         model = Ingredient
@@ -19,8 +17,9 @@ class RecipeFilter(filters.FilterSet):
     """Класс для фильтрации рецептов по тегам, автору и избранному."""
     tags = filters.MultipleChoiceFilter(
         field_name='tags__slug',
-        conjoined=False,  # Условие ИЛИ для нескольких тегов
-        method='filter_tags'
+        conjoined=False,
+        method='filter_tags',
+        choices=Tag.objects.values_list('slug', 'slug')
     )
     author = filters.NumberFilter(
         field_name='author__id',
@@ -37,6 +36,8 @@ class RecipeFilter(filters.FilterSet):
         """Фильтрация рецептов по нескольким тегам."""
         if not value:
             return queryset
+        if isinstance(value, str):
+            value = value.split(',')
         tag_query = Q()
         for slug in value:
             tag_query |= Q(tags__slug=slug)
