@@ -6,9 +6,7 @@ from recipes.models import Ingredient, Tag
 
 class IngredientFilter(filters.FilterSet):
     """Класс для фильтрации ингредиентов по названию."""
-    name = django_filters.CharFilter(
-        field_name='name',
-    )
+    name = django_filters.CharFilter(lookup_expr='icontains')
 
     class Meta:
         model = Ingredient
