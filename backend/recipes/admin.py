@@ -39,7 +39,7 @@ class RecipeAdmin(admin.ModelAdmin):
 class IngredientInRecipeAdmin(admin.ModelAdmin):
     """Админка для ингредиентов в рецепте."""
     list_display = ('id', 'ingredient', 'recipe', 'amount')
-    list_select_related = ('ingredient', 'recipe', 'amount')
+    list_select_related = ('ingredient', 'recipe')
     search_fields = ('recipe__name', 'ingredient__name')
     list_filter = ('recipe', 'ingredient')
 

@@ -10,13 +10,14 @@ class CreateShoppingList(object):
     def create_list(user):
         """Функция создания списка покупок."""
         recipes = Recipe.objects.filter(in_shopping_lists__user=user)
-        ingredients = IngredientInRecipe.objects.filter(
-            recipe__in=recipes
-        ).values(
-            'ingredient__name',
-            'ingredient__measurement_unit',
-        ).annotate(
-            total_amount=Sum('amount'),
+        ingredients = (
+            IngredientInRecipe.objects.filter(recipe__in=recipes)
+            .values(
+                'ingredient__name',
+                'ingredient__measurement_unit',
+            )
+            .annotate(total_amount=Sum('amount'))
+            .order_by('ingredient__name')
         )
         shopping_list = []
         for ingredient in ingredients:
