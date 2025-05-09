@@ -25,3 +25,4 @@ class CreateShoppingList(object):
                 f"{ingredient['total_amount']}"
             )
             shopping_list.append(line)
+        return shopping_list
