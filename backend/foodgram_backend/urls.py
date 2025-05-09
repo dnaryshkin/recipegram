@@ -1,28 +1,10 @@
-import os
-
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path, re_path
-from django.views.generic import TemplateView
-from django.views.static import serve
-
+from django.urls import include, path
 
 urlpatterns = [
 
-    path(
-        'api/redoc/',
-        TemplateView.as_view(template_name='redoc.html'),
-        name='redoc'
-    ),
-    re_path(
-        r'^api/openapi-schema\.yml$',
-        serve,
-        kwargs={
-            'path': 'openapi-schema.yml',
-            'document_root': os.path.join(settings.BASE_DIR, 'docs')
-        }
-    ),
     path('api/', include('api.urls')),
     path('admin/', admin.site.urls),
 ]
