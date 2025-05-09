@@ -1,5 +1,9 @@
-from django.urls import include, path
+import os
+
+from django.conf import settings
+from django.urls import include, path, re_path
 from django.views.generic import TemplateView
+from django.views.static import serve
 from rest_framework.routers import DefaultRouter
 
 from api.views import (
@@ -35,4 +39,13 @@ urlpatterns = [
         TemplateView.as_view(template_name='redoc.html'),
         name='redoc'
     ),
+    re_path(
+        r'^openapi-schema\.yml$',
+        serve,
+        kwargs={
+            'path': 'openapi-schema.yml',
+            'document_root': os.path.join(settings.BASE_DIR, 'docs')
+        }
+    ),
 ]
+
