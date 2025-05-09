@@ -114,7 +114,6 @@ class Recipe(models.Model):
         auto_now_add=True,
     )
 
-
     class Meta:
         ordering = ('pub_date',)
         verbose_name = 'рецепт'
