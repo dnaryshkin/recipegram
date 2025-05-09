@@ -23,6 +23,6 @@ class CreateShoppingList(object):
             name = ingredient['ingredient__name']
             unit = ingredient['ingredient__measurement_unit']
             amount = ingredient['total_amount']
-            ingredient_shopping = f'{name} ({unit}) — привет {amount}'
+            ingredient_shopping = f'{name} ({unit}) — {amount}'
             shopping_list.append(ingredient_shopping)
         return shopping_list
