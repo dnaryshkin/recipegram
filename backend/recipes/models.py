@@ -8,6 +8,7 @@ from foodgram_backend.constants import (
     MAX_UNIT_LENGTH,
     MIN_AMOUNT_INGREDIENTS,
     MIN_TIME_COOKING,
+    REGEX_SLUG,
 )
 
 from users.models import User
@@ -26,7 +27,7 @@ class Tag(models.Model):
         verbose_name='Слаг тега',
         validators=[
             RegexValidator(
-                regex=r'^[a-zA-Z0-9-_]+$',
+                regex=REGEX_SLUG,
                 message='Тег может содержать только латинские буквы, '
                         'цифры или дефис!'
             )
@@ -108,9 +109,14 @@ class Recipe(models.Model):
         ],
         help_text='Время приготовления указывается в минутах',
     )
+    pub_date = models.DateTimeField(
+        verbose_name='Дата публикации',
+        auto_now_add=True,
+    )
+
 
     class Meta:
-        ordering = ('name',)
+        ordering = ('pub_date',)
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
 
@@ -189,6 +195,12 @@ class Favorite(models.Model):
         Recipe,
         on_delete=models.CASCADE,
     )
+
+    def __str__(self):
+        return (
+            f'Рецепт {self.recipe.name} в избранном у '
+            f'{self.user.username}'
+        )
 
     class Meta:
         ordering = ('recipe',)
