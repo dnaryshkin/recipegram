@@ -1,4 +1,5 @@
 from django.urls import include, path
+from django.views.generic import TemplateView
 from rest_framework.routers import DefaultRouter
 
 from api.views import (
@@ -28,5 +29,10 @@ urlpatterns = [
         's/<int:pk>/',
         RecipeRedirectView.as_view({'get': 'link_redirect'}),
         name='short-link'
+    ),
+    path(
+        'redoc/',
+        TemplateView.as_view(template_name='redoc.html'),
+        name='redoc'
     ),
 ]
