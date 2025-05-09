@@ -9,8 +9,7 @@ from django.views.static import serve
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
+
     path(
         'api/redoc/',
         TemplateView.as_view(template_name='redoc.html'),
@@ -24,6 +23,8 @@ urlpatterns = [
             'document_root': os.path.join(settings.BASE_DIR, 'docs')
         }
     ),
+    path('api/', include('api.urls')),
+    path('admin/', admin.site.urls),
 ]
 
 if settings.DEBUG:
