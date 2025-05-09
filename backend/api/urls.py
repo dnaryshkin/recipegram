@@ -1,9 +1,4 @@
-import os
-
-from django.conf import settings
-from django.urls import include, path, re_path
-from django.views.generic import TemplateView
-from django.views.static import serve
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from api.views import (
@@ -33,18 +28,5 @@ urlpatterns = [
         's/<int:pk>/',
         RecipeRedirectView.as_view({'get': 'link_redirect'}),
         name='short-link'
-    ),
-    path(
-        'redoc/',
-        TemplateView.as_view(template_name='redoc.html'),
-        name='redoc'
-    ),
-    re_path(
-        r'^openapi-schema\.yml$',
-        serve,
-        kwargs={
-            'path': 'openapi-schema.yml',
-            'document_root': os.path.join(settings.BASE_DIR, 'docs')
-        }
     ),
 ]
