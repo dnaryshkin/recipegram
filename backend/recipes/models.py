@@ -1,11 +1,15 @@
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
-from foodgram_backend.constants import (MAX_NAME_INGREDIENT_LENGTH,
-                                        MAX_NAME_RECIPE_LENGTH,
-                                        MAX_NAME_TAG_LENGTH,
-                                        MAX_SLUG_TAG_LENGTH, MAX_UNIT_LENGTH,
-                                        MIN_AMOUNT_INGREDIENTS,
-                                        MIN_TIME_COOKING)
+from foodgram_backend.constants import (
+    MAX_NAME_INGREDIENT_LENGTH,
+    MAX_NAME_RECIPE_LENGTH,
+    MAX_NAME_TAG_LENGTH,
+    MAX_SLUG_TAG_LENGTH,
+    MAX_UNIT_LENGTH,
+    MIN_AMOUNT_INGREDIENTS,
+    MIN_TIME_COOKING,
+)
+
 from users.models import User
 
 

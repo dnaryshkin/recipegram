@@ -1,6 +1,7 @@
-import django_filters
 from django.db.models import Q
+import django_filters
 from django_filters import rest_framework as filters
+
 from recipes.models import Ingredient, Tag
 
 

@@ -1,10 +1,13 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
-from foodgram_backend.constants import (MAX_EMAIL_LENGTH, MAX_FIRSNAME_LENGTH,
-                                        MAX_LASTNAME_LENGTH,
-                                        MAX_PASSWORD_LENGTH,
-                                        MAX_USERNAME_LENGTH)
+from foodgram_backend.constants import (
+    MAX_EMAIL_LENGTH,
+    MAX_FIRSNAME_LENGTH,
+    MAX_LASTNAME_LENGTH,
+    MAX_PASSWORD_LENGTH,
+    MAX_USERNAME_LENGTH,
+)
 
 
 class User(AbstractUser):

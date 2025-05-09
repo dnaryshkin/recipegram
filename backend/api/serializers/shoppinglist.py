@@ -1,6 +1,7 @@
+from rest_framework import serializers
+
 from api.serializers.recipes import MiniRecipeSerializer
 from recipes.models import RecipesInShoppingList
-from rest_framework import serializers
 
 
 class ShoppingListSerializer(serializers.ModelSerializer):

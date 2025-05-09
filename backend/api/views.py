@@ -1,25 +1,40 @@
-from api.filters import IngredientFilter, RecipeFilter
-from api.pagination import CustomPageNumberPagination
-from api.permissions import IsAuthorOrReadOnly
-from api.serializers.recipes import (IngredientSerializer,
-                                     MiniRecipeSerializer,
-                                     ReadRecipeSerializer, RecipeSerializer,
-                                     TagSerializer)
-from api.serializers.subscription import (CreateSubscriptionSerializer,
-                                          SubscriptionSerializer)
-from api.serializers.users import (AvatarSerializer, ChangePasswordSerializer,
-                                   CreateUserSerializer, ReadUserSerializer)
-from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
-                            RecipesInShoppingList, Tag)
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+
+from api.filters import IngredientFilter, RecipeFilter
+from api.pagination import CustomPageNumberPagination
+from api.permissions import IsAuthorOrReadOnly
+from api.serializers.recipes import (
+    IngredientSerializer,
+    MiniRecipeSerializer,
+    ReadRecipeSerializer,
+    RecipeSerializer,
+    TagSerializer,
+)
+from api.serializers.subscription import (
+    CreateSubscriptionSerializer,
+    SubscriptionSerializer,
+)
+from api.serializers.users import (
+    AvatarSerializer,
+    ChangePasswordSerializer,
+    CreateUserSerializer,
+    ReadUserSerializer,
+)
+from api.shopping_list import CreateShoppingList
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipesInShoppingList,
+    Tag,
+)
 from users.models import Subscription, User
 
 
@@ -150,25 +165,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def download_shopping_cart(self, request):
         """Функция скачивания списка покупок в формате txt."""
-        user = self.request.user
-        recipes_shop_list = Recipe.objects.filter(in_shopping_lists__user=user)
-        ingredients = IngredientInRecipe.objects.filter(
-            recipe__in=recipes_shop_list
-        ).values(
-            'ingredient__name',
-            'ingredient__measurement_unit',
-        ).annotate(
-            total_amount=Sum('amount'),
-        )
-        list_shopping = []
-        for ingredient in ingredients:
-            name = ingredient['ingredient__name']
-            unit = ingredient['ingredient__measurement_unit']
-            amount = ingredient['total_amount']
-            ingredient_shopping = f'{name} ({unit}) — {amount}'
-            list_shopping.append(ingredient_shopping)
+        shopping_list = CreateShoppingList.create_list(request.user)
         responce = HttpResponse(
-            '\n'.join(list_shopping),
+            '\n'.join(shopping_list),
             content_type='text/plain',
         )
         responce['Content-Disposition'] = (
