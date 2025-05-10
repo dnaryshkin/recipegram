@@ -9,20 +9,19 @@ class CreateShoppingList(object):
     @staticmethod
     def create_list(user):
         """Функция создания списка покупок."""
-        ingredients = IngredientInRecipe.objects.filter(
-            recipe__in_shopping_lists__user=user
-        ).values(
-            'ingredient__name',
-            'ingredient__measurement_unit',
-        ).annotate(
-            total_amount=Sum('amount'),
-        )
-        shopping_list = []
-        for ingredient in ingredients:
-            line = (
-                f"{ingredient['ingredient__name']} "
-                f"({ingredient['ingredient__measurement_unit']}) — "
-                f"{ingredient['total_amount']}"
+        ingredients = (
+            IngredientInRecipe.objects
+            .filter(recipe__in_shopping_lists__user=user)
+            .values(
+                'ingredient__name',
+                'ingredient__measurement_unit'
             )
-            shopping_list.append(line)
-        return shopping_list
+            .annotate(total=Sum('amount'))
+            .order_by('ingredient__name')
+        )
+
+        return [
+            f"{ing['ingredient__name']} "
+            f"({ing['ingredient__measurement_unit']}) — {ing['total']}"
+            for ing in ingredients
+        ]
