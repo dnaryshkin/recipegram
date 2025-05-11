@@ -186,5 +186,5 @@ docker-compose exec foodgram_backend python manage.py createsuperuser
 
 С моим проектом Вы можете ознакомиться по ссылке `https://project-foodgram.zapto.org/recipes`
 Админ панель можно посмотреть по ссылке `https://project-foodgram.zapto.org/admin`
-Электронная почта: admin@admin.com
+Электронная почта: superadmin@mail.com
 Пароль: Admin
