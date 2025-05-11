@@ -30,9 +30,22 @@ class IngredientAdmin(admin.ModelAdmin):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     """Админка для рецептов."""
-    list_display = ('id', 'name', 'author', 'cooking_time')
+    list_display = (
+        'id',
+        'name',
+        'cooking_time',
+        'author',
+        'recipe_in_favorites',
+    )
     filter_horizontal = ('tags', 'ingredients')
     list_filter = ('tags',)
+    search_fields = ('name', 'author__username')
+
+    def recipe_in_favorites(self, obj):
+        """Функция получения количества добавлений рецептов в избранное."""
+        return obj.favorites.count()
+    recipe_in_favorites.short_description = ("Количество добавление рецепта в "
+                                             "избранное")
 
 
 @admin.register(IngredientInRecipe)
