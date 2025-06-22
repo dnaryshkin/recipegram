@@ -1,4 +1,4 @@
-# Проект «Фудграм»
+# Проект «RECIPEGRAM»
 
 "Фудграм" - сайт на котором пользователи публикуют свои рецепты.
 
@@ -181,10 +181,3 @@ docker-compose exec foodgram_backend python manage.py createsuperuser
 ~~~
 
 Более подробно со всей спецификацией API можно ознакомится на `http://localhost:8000/redoc`
-
-### Знакомство с "боевым" проектом
-
-С моим проектом Вы можете ознакомиться по ссылке `https://project-foodgram.zapto.org/recipes`
-Админ панель можно посмотреть по ссылке `https://project-foodgram.zapto.org/admin`
-Электронная почта: superadmin@mail.com
-Пароль: Admin
