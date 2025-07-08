@@ -25,13 +25,13 @@
 
 1. Клонировать репозиторий из GitHub:
 ~~~
-git clone https://github.com/dnaryshkin/foodgram.git
+git clone https://github.com/dnaryshkin/recipegram.git
 ~~~
 2. Для корректной работы в корне проекта необходимо создать `.env` заполенный по примеру файла `.env_example`.
 ~~~
 SECRET_KEY='secret_key'  #Необходимо установить свой секретный ключ проекта
 DEBUG=False  #Может быть True или False
-ALLOWED_HOSTS=foodgram.ru #Необходимо указать свой домен
+ALLOWED_HOSTS=recipegram.ru #Необходимо указать свой домен
 POSTGRES_DB=project_db
 POSTGRES_USER=project_user
 POSTGRES_PASSWORD=project_password
@@ -48,15 +48,15 @@ docker-compose up
 После запуска всех контейнеров, необходимо:
 Выполнить миграции:
 ~~~
-docker-compose exec foodgram_backend python manage.py migrate
+docker-compose exec recipegram_backend python manage.py migrate
 ~~~
 Осуществить испорт данных из фикстур с содержимым ингредиентов и тегов, выполнением команды:
 ~~~
-docker-compose exec foodgram_backend python manage.py import_csv
+docker-compose exec recipegram_backend python manage.py import_csv
 ~~~
 Необходимо создать суперпользователя для работы с админ-панелью:
 ~~~
-docker-compose exec foodgram_backend python manage.py createsuperuser
+docker-compose exec recipegram_backend python manage.py createsuperuser
 ~~~
 
 ## Примеры запросов к API
@@ -90,8 +90,8 @@ docker-compose exec foodgram_backend python manage.py createsuperuser
 ~~~
 {
   "count": 123,
-  "next": "http://foodgram.example.org/api/recipes/?page=4",
-  "previous": "http://foodgram.example.org/api/recipes/?page=2",
+  "next": "http://recipegram.example.org/api/recipes/?page=4",
+  "previous": "http://recipegram.example.org/api/recipes/?page=2",
   "results": [
     {
       "id": 0,
@@ -109,7 +109,7 @@ docker-compose exec foodgram_backend python manage.py createsuperuser
         "first_name": "Вася",
         "last_name": "Иванов",
         "is_subscribed": false,
-        "avatar": "http://foodgram.example.org/media/users/image.png"
+        "avatar": "http://recipegram.example.org/media/users/image.png"
       },
       "ingredients": [
         {
@@ -122,7 +122,7 @@ docker-compose exec foodgram_backend python manage.py createsuperuser
       "is_favorited": true,
       "is_in_shopping_cart": true,
       "name": "string",
-      "image": "http://foodgram.example.org/media/recipes/images/image.png",
+      "image": "http://recipegram.example.org/media/recipes/images/image.png",
       "text": "string",
       "cooking_time": 1
     }
@@ -169,7 +169,7 @@ docker-compose exec foodgram_backend python manage.py createsuperuser
     "first_name": "Вася",
     "last_name": "Иванов",
     "is_subscribed": false,
-    "avatar": "http://foodgram.example.org/media/users/image.png"
+    "avatar": "http://recipegram.example.org/media/users/image.png"
   },
   "ingredients": [
     {
@@ -182,7 +182,7 @@ docker-compose exec foodgram_backend python manage.py createsuperuser
   "is_favorited": true,
   "is_in_shopping_cart": true,
   "name": "string",
-  "image": "http://foodgram.example.org/media/recipes/images/image.png",
+  "image": "http://recipegram.example.org/media/recipes/images/image.png",
   "text": "string",
   "cooking_time": 1
 }
