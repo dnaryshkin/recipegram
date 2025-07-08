@@ -27,7 +27,7 @@
 ~~~
 git clone https://github.com/dnaryshkin/recipegram.git
 ~~~
-2. Для корректной работы в корне проекта необходимо создать `.env` заполенный по примеру файла `.env_example`.
+2. Для корректной работы в корне проекта необходимо создать `.env` заполненный по примеру файла `.env_example`.
 ~~~
 SECRET_KEY='secret_key'  #Необходимо установить свой секретный ключ проекта
 DEBUG=False  #Может быть True или False
@@ -39,7 +39,7 @@ DB_HOST=db
 DB_PORT=5432
 ~~~
 
-3. В корневой папке проекта foodgram выполнить:
+3. В корневой папке проекта recipegram выполнить:
 
 ~~~
 docker-compose up
