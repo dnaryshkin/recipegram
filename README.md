@@ -29,9 +29,10 @@ git clone https://github.com/dnaryshkin/recipegram.git
 ~~~
 2. Для корректной работы в корне проекта необходимо создать `.env` заполненный по примеру файла `.env_example`.
 ~~~
-SECRET_KEY='secret_key'  #Необходимо установить свой секретный ключ проекта
-DEBUG=False  #Может быть True или False
-ALLOWED_HOSTS=recipegram.ru #Необходимо указать свой домен
+USE_SQLITE=True_or_False # True для подключение базы данных Sqlite
+SECRET_KEY='your_secret_key_project'  # установите свой секретный пароль проекта
+DEBUG=True_or_False # включение или отключение дебаг режима
+ALLOWED_HOSTS=your_domain   # необходимо указать свой домен
 POSTGRES_DB=project_db
 POSTGRES_USER=project_user
 POSTGRES_PASSWORD=project_password
@@ -50,7 +51,7 @@ docker-compose up
 ~~~
 docker-compose exec recipegram_backend python manage.py migrate
 ~~~
-Осуществить испорт данных из фикстур с содержимым ингредиентов и тегов, выполнением команды:
+Осуществить импорт данных из фикстур с содержимым ингредиентов и тегов, выполнением команды:
 ~~~
 docker-compose exec recipegram_backend python manage.py import_csv
 ~~~
